@@ -53,12 +53,11 @@ def _port_info_serializer(port_info):
 
 
 @app.route('/')
-def serial_ports():
+def index():
     """
-    Lists serial port names
+    Health Check
     """
-    ports = [_port_info_serializer(port_info) for port_info in comports()]
-    return dumps({"ports": ports})
+    return ""
 
 
 @app.route('/ping')
@@ -67,6 +66,15 @@ def ping():
     Health Check
     """
     return "pong"
+
+
+@app.route('/ports')
+def serial_ports():
+    """
+    Lists serial port names
+    """
+    ports = [_port_info_serializer(port_info) for port_info in comports()]
+    return dumps({"ports": ports})
 
 
 @app.route('/read')
@@ -102,7 +110,6 @@ def fake():
     """
     Get the agent version
     """
-
     return VERSION
 
 
