@@ -15,21 +15,26 @@ Date created: 2017-06-01
 from time import time
 from json import dumps
 from itertools import cycle
+from flask_cors import CORS
 from fake_data import fake_data
 from flask import Flask, request
 from serial.tools.list_ports import comports
+from serial.serialutil import SerialException
 from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
+
+VERSION = '0.0.1'
 app = Flask(__name__)
+CORS(app)
 
 fake_cycle = cycle(fake_data)
 
 
-def _get_float(request, param):
+def _get_float(req, param):
     """
     Get float value
     """
-    val = request.args.get("param")
+    val = req.args.get("param")
     if val:
         return float(val)
 
@@ -69,6 +74,9 @@ def read():
     """
     Read a data from serial port
     """
+    if request.args.get("fake") == "true":
+        # Emulate a Fake request ;)
+        return "%s" % next(fake_cycle)
     kwargs = dict(
         port=request.args.get("port", None),
         baudrate=int(request.args.get("baudrate", 9600)),
@@ -82,16 +90,20 @@ def read():
         dsrdtr=request.args.get("dsrdtr") == "true",
         inter_byte_timeout=_get_float(request, "inter_byte_timeout"),
     )
-    with Serial(**kwargs) as ser:
-        return ser.readline()
+    try:
+        with Serial(**kwargs) as ser:
+            return ser.readline()
+    except SerialException as e:
+        return str(e), 404
 
 
-@app.route('/fake')
+@app.route('/version')
 def fake():
     """
-    Fake reading from serial port
+    Get the agent version
     """
-    return "%s" % next(fake_cycle)
+
+    return VERSION
 
 
 def generate_fake_data():
@@ -103,6 +115,7 @@ def generate_fake_data():
         f.write("%n:%n\n" % time(), ser.readline())
 
 
-# uncomment `generate_fake_data` call to log data to testing purpose
-# generate_fake_data()
-app.run()
+if __name__ == "__main__":
+    # uncomment `generate_fake_data` call to log data to testing purpose
+    # generate_fake_data()
+    app.run(host='0.0.0.0', port=12345, debug=True)
