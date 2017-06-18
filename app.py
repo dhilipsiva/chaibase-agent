@@ -22,7 +22,8 @@ from serial.tools.list_ports import comports
 from serial.serialutil import SerialException
 from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
-
+DEBUG = False
+# DEBUG = True
 VERSION = '0.0.1'
 app = Flask(__name__)
 CORS(app)
@@ -125,4 +126,4 @@ def generate_fake_data():
 if __name__ == "__main__":
     # uncomment `generate_fake_data` call to log data to testing purpose
     # generate_fake_data()
-    app.run(host='0.0.0.0', port=12345, debug=True)
+    app.run(host='0.0.0.0', port=12345, debug=DEBUG)
