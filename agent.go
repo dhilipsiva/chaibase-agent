@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	// "fmt"
+	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/ds-forks/bugst-go-serial"
 )
 
 func writeHandler(w http.ResponseWriter, m map[string]string) {
@@ -25,6 +28,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":9876", nil)
+	//http.HandleFunc("/", handler)
+	//http.ListenAndServe(":9876", nil)
+	ports, err := serial.GetPortsList()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(ports) == 0 {
+		fmt.Println("No serial ports found!")
+	} else {
+		for _, port := range ports {
+			fmt.Printf("Found port: %v\n", port)
+		}
+	}
 }
