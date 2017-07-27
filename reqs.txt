@@ -1,0 +1,2 @@
+go get github.com/jacobsa/go-serial/serial
+go install github.com/jacobsa/go-serial/serial
